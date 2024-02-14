@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SchemeGenerator", "SchemeGenerator\SchemeGenerator.csproj", "{D1992956-86E7-427D-B4B9-3AAE218DBAA8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SchemeGenerator.Test", "SchemeGenerator.Test\SchemeGenerator.Test.csproj", "{42CDA9D5-2264-4E21-B5C8-6C919D24C602}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D1992956-86E7-427D-B4B9-3AAE218DBAA8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1992956-86E7-427D-B4B9-3AAE218DBAA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D1992956-86E7-427D-B4B9-3AAE218DBAA8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D1992956-86E7-427D-B4B9-3AAE218DBAA8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42CDA9D5-2264-4E21-B5C8-6C919D24C602}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42CDA9D5-2264-4E21-B5C8-6C919D24C602}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42CDA9D5-2264-4E21-B5C8-6C919D24C602}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42CDA9D5-2264-4E21-B5C8-6C919D24C602}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
