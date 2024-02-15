@@ -10,7 +10,7 @@ Scheme Generator is a C# library that generates default values for a given `Type
 
 - **JSON Serialization**: Scheme Generator can serialize the generated default values to JSON. This is handy when you need a JSON representation of an object for testing, debugging, or other uses.
  
-- **Test Fake Data**: This package can be used to generate fake data for any type of test projects instead of wasting time initializing classes
+- **Test Fake Data**: This package can be used to generate fake data for any type of test project instead of wasting time initializing classes
 ## Installation
 
 You can install the Scheme Generator package using either the `dotnet` CLI:
