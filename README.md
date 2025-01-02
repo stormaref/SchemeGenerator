@@ -22,7 +22,7 @@ dotnet add package SchemeGenerator
 Or the NuGet Package Manager Console:
 
 ```bash
-Install-Package SchemeGenerator
+Install-Package SchemeGenerator -Version 9.0.0
 ```
 
 ## Usage
