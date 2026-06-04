@@ -1,64 +1,41 @@
 using System.Text.Json;
+using SchemeGenerator.Generation;
 
 namespace SchemeGenerator;
 
-public interface ISchemeGenerator
+/// <summary>
+/// Generates default object graphs and JSON using reflection.
+/// </summary>
+public sealed class SchemeGenerator : ISchemeGenerator
 {
-    string GetDefaultJson(Type type);
-    object? GetDefaultValue(Type type);
-}
+    private readonly ValueGenerator _generator;
+    private readonly SchemeGeneratorOptions _options;
 
-public class SchemeGenerator : ISchemeGenerator
-{
-    private object InitializeClass(Type type)
+    /// <summary>
+    /// Creates a generator with optional configuration.
+    /// </summary>
+    public SchemeGenerator(SchemeGeneratorOptions? options = null)
     {
-        var obj = Activator.CreateInstance(type);
-        var properties = type.GetProperties();
-        foreach (var property in properties)
-        {
-            if (!property.CanWrite) continue;
-            var value = GetDefaultValue(property.PropertyType);
-            property.SetValue(obj, value);
-        }
-
-        return obj!;
+        _options = options ?? new SchemeGeneratorOptions();
+        _generator = new ValueGenerator(_options);
     }
 
+    /// <inheritdoc />
+    public object? GetDefaultValue(Type type) => _generator.Generate(type);
+
+    /// <inheritdoc />
+    public T? GetDefault<T>() => (T?)GetDefaultValue(typeof(T));
+
+    /// <inheritdoc />
     public string GetDefaultJson(Type type)
     {
         var obj = GetDefaultValue(type);
-        return JsonSerializer.Serialize(obj ?? new { });
+        return JsonSerializer.Serialize(obj ?? new { }, _options.JsonSerializerOptions);
     }
 
-    public object? GetDefaultValue(Type type)
-    {
-        if (type == typeof(string))
-        {
-            return string.Empty;
-        }
+    /// <inheritdoc />
+    public string GetDefaultJson<T>() => GetDefaultJson(typeof(T));
 
-        var collection = type
-            .GetInterfaces()
-            .FirstOrDefault(x => x.IsGenericType &&
-                                 x.GetGenericTypeDefinition() == typeof(ICollection<>) &&
-                                 x.GetGenericArguments().Length == 1);
-        if (collection != null)
-        {
-            var collectionType = collection.GetGenericArguments().First();
-            var item = GetDefaultValue(collectionType);
-            var listType = typeof(List<>).MakeGenericType(collectionType);
-            var list = Activator.CreateInstance(listType);
-            listType.GetMethod("Add")?.Invoke(list, [item]);
-            return list;
-        }
-
-        if (type.GetConstructor(Type.EmptyTypes) != null)
-        {
-            return InitializeClass(type);
-        }
-
-        return type.IsValueType
-            ? Activator.CreateInstance(type)
-            : null;
-    }
+    /// <inheritdoc />
+    public void Populate(object instance) => _generator.Populate(instance);
 }

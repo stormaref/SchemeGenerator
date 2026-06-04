@@ -1,0 +1,32 @@
+name: Bug report
+description: Report a problem with SchemeGenerator
+labels: ["bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Describe the bug and expected behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Minimal code sample or test case if possible.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Package version
+      placeholder: "10.1.0"
+    validations:
+      required: true
+  - type: input
+    id: runtime
+    attributes:
+      label: .NET runtime
+      placeholder: "net10.0"
+    validations:
+      required: true

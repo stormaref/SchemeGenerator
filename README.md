@@ -1,71 +1,142 @@
 # Scheme Generator
 
-Scheme Generator is a C# library that generates default values for a given `Type`. It also provides functionality to serialize these default values to JSON.
+[![NuGet](https://img.shields.io/nuget/v/SchemeGenerator.svg)](https://www.nuget.org/packages/SchemeGenerator)
+[![CI](https://github.com/stormaref/SchemeGenerator/actions/workflows/nuget.yml/badge.svg)](https://github.com/stormaref/SchemeGenerator/actions/workflows/nuget.yml)
+[![.NET](https://img.shields.io/badge/.NET-8%20%7C%209%20%7C%2010-blue)](https://dotnet.microsoft.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-## Key Features
+Scheme Generator builds default object graphs and JSON for any .NET type. Use it for unit tests, OpenAPI examples, and quick fixtures without hand-writing sample data.
 
-- **Default Value Generation**: Scheme Generator can generate default values for any given `Type`, including nested types and collections. This makes it easy to quickly initialize objects with default values.
+## Packages
 
-- **Collection Initialization**: Not only can Scheme Generator handle collections, but it also initializes them with a single item. This is particularly useful when you need a non-empty collection for testing or other purposes.
+| Package | Description |
+|---------|-------------|
+| [SchemeGenerator](https://www.nuget.org/packages/SchemeGenerator) | Core reflection-based generator |
+| [SchemeGenerator.SourceGenerators](https://www.nuget.org/packages/SchemeGenerator.SourceGenerators) | Roslyn source generator for compile-time defaults |
+| [SchemeGenerator.Xunit](https://www.nuget.org/packages/SchemeGenerator.Xunit) | xUnit `[Theory]` data attributes |
+| [SchemeGenerator.AspNetCore](https://www.nuget.org/packages/SchemeGenerator.AspNetCore) | Swashbuckle schema example filter |
 
-- **JSON Serialization**: Scheme Generator can serialize the generated default values to JSON. This is handy when you need a JSON representation of an object for testing, debugging, or other uses.
- 
-- **Test Fake Data**: This package can be used to generate fake data for any type of test project instead of wasting time initializing classes
+All packages are version **10.1.0** and target **net8.0**, **net9.0**, and **net10.0** (except the analyzer, which is a Roslyn component).
+
+## Requirements
+
+- **Consumers**: .NET 8, 9, or 10
+- **Building from source**: [.NET 10 SDK](https://dotnet.microsoft.com/download) ([`global.json`](global.json))
+
 ## Installation
 
-You can install the Scheme Generator package using either the `dotnet` CLI:
+Core package:
 
 ```bash
-dotnet add package SchemeGenerator
+dotnet add package SchemeGenerator --version 10.1.0
 ```
 
-Or the NuGet Package Manager Console:
+With source generator:
 
 ```bash
-Install-Package SchemeGenerator -Version 9.0.0
+dotnet add package SchemeGenerator --version 10.1.0
+dotnet add package SchemeGenerator.SourceGenerators --version 10.1.0
 ```
 
-## Usage
-
-### Creating a new instance
-
-You can create a new instance of the `SchemeGenerator` class to generate default values:
+## Quick start
 
 ```csharp
 var generator = new SchemeGenerator();
-var defaultString = generator.GetDefaultJson(typeof(ComplexType));
+var json = generator.GetDefaultJson(typeof(ComplexType));
+
+// or with generics
+var model = generator.GetDefault<ComplexType>();
+var json2 = generator.GetDefaultJson<ComplexType>();
 ```
 
-### Using Dependency Injection (DI)
+### Dependency injection
 
-Alternatively, you can get an instance of `SchemeGenerator` from the DI container. First, add the Scheme Generator to your services in `Program.cs`:
+```csharp
+builder.Services.AddSchemeGenerator(options =>
+{
+    options.CollectionItemCount = 2;
+    options.PrimitiveMode = PrimitiveDefaultsMode.Sample;
+});
+
+// inject ISchemeGenerator
+```
+
+## Options
+
+| Property | Default | Description |
+|----------|---------|-------------|
+| `CollectionItemCount` | `1` | Items in arrays and collections |
+| `MaxDepth` | `32` | Max recursion depth (cycle safety) |
+| `PrimitiveMode` | `Zero` | `Zero` = CLR defaults; `Sample` = realistic primitives |
+| `JsonSerializerOptions` | `null` | Passed to `GetDefaultJson` |
+
+## Attributes
+
+| Attribute | Target | Description |
+|-----------|--------|-------------|
+| `[SchemeIgnore]` | Property | Skip property |
+| `[SchemeCount(n)]` | Property | Override collection size |
+| `[SchemeValue(x)]` | Property | Fixed value |
+| `[GenerateSchemeDefaults]` | Type | Enable source generator (type must be `partial`) |
+
+## Populate existing instances
+
+```csharp
+var target = new SimpleType();
+generator.Populate(target);
+```
+
+## Source generator
+
+Mark a **partial** type and reference the analyzer package:
+
+```csharp
+[GenerateSchemeDefaults]
+public partial class OrderDto
+{
+    public int Id { get; set; }
+    public string Sku { get; set; } = string.Empty;
+}
+
+var order = OrderDto.OrderDtoSchemeDefaults.Create();
+var json = OrderDto.OrderDtoSchemeDefaults.CreateJson();
+```
+
+Nested user types without `[GenerateSchemeDefaults]` fall back to the reflection-based `SchemeGenerator` at runtime.
+
+## xUnit integration
+
+```bash
+dotnet add package SchemeGenerator.Xunit --version 10.1.0
+```
+
+```csharp
+[Theory, AutoSchemeData<ComplexType>]
+public void MyTest(ComplexType model) => Assert.NotNull(model);
+
+[Theory, SchemeGeneratorData(typeof(SimpleType))]
+public void OtherTest(SimpleType model) => Assert.NotNull(model);
+```
+
+## ASP.NET Core / Swashbuckle
+
+```bash
+dotnet add package SchemeGenerator.AspNetCore --version 10.1.0
+```
 
 ```csharp
 builder.Services.AddSchemeGenerator();
-```
 
-Then, inject `ISchemeGenerator` into your class:
-
-```csharp
-public class MyClass
+builder.Services.AddSwaggerGen(options =>
 {
-    private readonly ISchemeGenerator _generator;
-
-    public MyClass(ISchemeGenerator generator)
-    {
-        _generator = generator;
-    }
-
-    public void MyMethod()
-    {
-        var defaultString = _generator.GetDefaultJson(typeof(ComplexType));
-    }
-}
+    options.AddSchemeGeneratorExamples();
+});
 ```
 
-## Example
+Register `SchemeGeneratorSchemaFilter` via DI (Swashbuckle resolves it from the container when using `AddSchemeGeneratorExamples`).
 
-Consider the following types:
+## Example output
+
 ```csharp
 public class SimpleType
 {
@@ -79,22 +150,41 @@ public class ComplexType
     public List<SimpleType> Objects { get; set; }
 }
 ```
-You can generate a default JSON representation of `ComplexType` as follows:
-```csharp
-var generator = new SchemeGenerator();
-var json = generator.GetDefaultJson(typeof(ComplexType));
-```        
-This will output:
+
+Default JSON (`PrimitiveMode.Zero`):
+
 ```json
 {
-  "Numbers": [
-    0
-  ],
-  "Objects": [
-    {
-      "Number": 0,
-      "Text": ""
-    }
-  ]
+  "Numbers": [0],
+  "Objects": [{ "Number": 0, "Text": "" }]
 }
 ```
+
+## Benchmarks
+
+See [SchemeGenerator.Benchmarks](SchemeGenerator.Benchmarks/):
+
+```bash
+dotnet run -c Release --project SchemeGenerator.Benchmarks
+```
+
+Compares reflection vs source-generated creation for the same DTO.
+
+## Building locally
+
+```bash
+dotnet restore
+dotnet test -c Release
+dotnet pack SchemeGenerator/SchemeGenerator.csproj -c Release
+dotnet pack SchemeGenerator.SourceGenerators/SchemeGenerator.SourceGenerators.csproj -c Release
+dotnet pack SchemeGenerator.Xunit/SchemeGenerator.Xunit.csproj -c Release
+dotnet pack SchemeGenerator.AspNetCore/SchemeGenerator.AspNetCore.csproj -c Release
+```
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). Release notes: [CHANGELOG.md](CHANGELOG.md).
+
+## License
+
+MIT — see [LICENSE](LICENSE).

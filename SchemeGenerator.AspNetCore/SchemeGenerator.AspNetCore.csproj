@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <PackageId>SchemeGenerator.AspNetCore</PackageId>
+        <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+        <Description>Swashbuckle integration for OpenAPI examples via SchemeGenerator.</Description>
+        <PackageTags>scheme;swagger;openapi;aspnetcore</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="..\README.md" Pack="true" PackagePath="\"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\SchemeGenerator\SchemeGenerator.csproj" />
+        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" />
+    </ItemGroup>
+
+</Project>

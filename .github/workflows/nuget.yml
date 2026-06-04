@@ -10,19 +10,21 @@ jobs:
   publish-nuget:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Setup .NET
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '9.0.x'
+        dotnet-version: '10.0.x'
     - name: Install dependencies
       run: dotnet restore
+    - name: Test
+      run: dotnet test --configuration Release --no-restore
     - name: Build
       run: dotnet build --configuration Release --no-restore
+    - name: Pack
+      run: dotnet pack SchemeGenerator/SchemeGenerator.csproj --configuration Release --no-build --output ./nupkg
     - name: Publish to NuGet
-      uses: brandedoutcast/publish-nuget@v2.5.5
+      uses: edumserrano/nuget-push@v1.2.2
       with:
-        PROJECT_FILE_PATH: SchemeGenerator/SchemeGenerator.csproj
-        VERSION_REGEX: '^\s*<Version>(.*)<\/Version>\s*$'
-        TAG_FORMAT: '*'
-        NUGET_KEY: ${{secrets.NUGET_API_KEY}}
+        api-key: ${{ secrets.NUGET_API_KEY }}
+        working-directory: nupkg

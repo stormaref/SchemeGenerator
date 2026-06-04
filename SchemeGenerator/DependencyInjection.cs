@@ -2,10 +2,22 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace SchemeGenerator;
 
-public static class DependencyInjection
+/// <summary>
+/// DI extensions for SchemeGenerator.
+/// </summary>
+public static class SchemeGeneratorServiceCollectionExtensions
 {
-    public static void AddSchemeGenerator(this IServiceCollection services)
+    extension(IServiceCollection services)
     {
-        services.AddSingleton<ISchemeGenerator, SchemeGenerator>();
+        /// <summary>
+        /// Registers <see cref="ISchemeGenerator"/> as a singleton.
+        /// </summary>
+        public IServiceCollection AddSchemeGenerator(Action<SchemeGeneratorOptions>? configure = null)
+        {
+            var options = new SchemeGeneratorOptions();
+            configure?.Invoke(options);
+            services.AddSingleton<ISchemeGenerator>(_ => new SchemeGenerator(options));
+            return services;
+        }
     }
 }

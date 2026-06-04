@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <PackageId>SchemeGenerator.SourceGenerators</PackageId>
+        <IsPackable>true</IsPackable>
+        <IsRoslynComponent>true</IsRoslynComponent>
+        <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+        <Description>Roslyn source generator for compile-time SchemeGenerator defaults.</Description>
+        <PackageTags>scheme;generator;roslyn;sourcegenerator</PackageTags>
+        <DevelopmentDependency>true</DevelopmentDependency>
+        <NoWarn>$(NoWarn);NU5128</NoWarn>
+        <GenerateDocumentationFile>false</GenerateDocumentationFile>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="..\README.md" Pack="true" PackagePath="\"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" />
+    </ItemGroup>
+
+</Project>

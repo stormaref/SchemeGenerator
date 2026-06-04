@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <PackageId>SchemeGenerator.Xunit</PackageId>
+        <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+        <Description>xUnit data attributes powered by SchemeGenerator.</Description>
+        <PackageTags>scheme;xunit;test-data</PackageTags>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="..\README.md" Pack="true" PackagePath="\"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\SchemeGenerator\SchemeGenerator.csproj" />
+        <PackageReference Include="xunit.extensibility.core" />
+    </ItemGroup>
+
+</Project>
