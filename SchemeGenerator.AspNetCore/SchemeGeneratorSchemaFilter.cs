@@ -1,6 +1,6 @@
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Text.Json.Nodes;
 
 namespace SchemeGenerator.AspNetCore;
 
@@ -20,7 +20,7 @@ public sealed class SchemeGeneratorSchemaFilter : ISchemaFilter
     }
 
     /// <inheritdoc />
-    public void Apply(OpenApiSchema schema, SchemaFilterContext context)
+    public void Apply(IOpenApiSchema schema, SchemaFilterContext context)
     {
         if (context.Type is null)
         {
@@ -29,8 +29,10 @@ public sealed class SchemeGeneratorSchemaFilter : ISchemaFilter
 
         try
         {
+            if (schema is not OpenApiSchema concreteSchema)
+                return;
             var json = _generator.GetDefaultJson(context.Type);
-            schema.Example = OpenApiAnyFactory.CreateFromJson(json);
+            concreteSchema.Example = JsonNode.Parse(json);
         }
         catch (Exception)
         {
