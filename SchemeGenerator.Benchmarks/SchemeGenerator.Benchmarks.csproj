@@ -9,6 +9,7 @@
 
     <ItemGroup>
         <PackageReference Include="BenchmarkDotNet" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
         <ProjectReference Include="..\SchemeGenerator\SchemeGenerator.csproj" />
         <ProjectReference Include="..\SchemeGenerator.SourceGenerators\SchemeGenerator.SourceGenerators.csproj"
                           OutputItemType="Analyzer"
